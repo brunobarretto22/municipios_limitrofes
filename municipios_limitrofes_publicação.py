@@ -1,4 +1,4 @@
-# streamlit run .\municipios_limitrofes.py
+# streamlit run .\municipios_limitrofes_publicação.py
 
 import geopandas as gpd
 import streamlit as st
@@ -6,8 +6,8 @@ import folium
 from streamlit_folium import st_folium
 
 st.header('Consulta de municípios limítrofes com mapa interativo')
-
 gdf_municipios = gpd.read_file('BR_Municipios_2024_MT.shp')
+print(gdf_municipios)
 
 # Seleção do estado
 siglas_uf = gdf_municipios['SIGLA_UF'].drop_duplicates().sort_values()
@@ -30,10 +30,8 @@ if not municipio_geom.empty:
 
     # Criar mapa Folium com tile Esri World Imagery
     # m = folium.Map(location=[centroid_y, centroid_x], zoom_start=8, tiles='Esri.WorldImagery')
-    m = folium.Map(location=[centroid_y, centroid_x], zoom_start=8, tiles='Esri.WorldImagery')
-    folium.TileLayer('Esri.WorldBoundariesAndPlaces').add_to(m)
-    folium.LayerControl().add_to(m)
-
+    m = folium.Map(location=[centroid_y, centroid_x], zoom_start=8, tiles='OpenStreetMap')
+    
     # Adiciona polígono do município selecionado em destaque (ex: borda vermelha)
     folium.GeoJson(
         municipio_geom,
@@ -57,3 +55,4 @@ if not municipio_geom.empty:
 else:
 
     st.write("Município selecionado não encontrado na base")
+st_data = st_folium(m, width=700, height=500)
