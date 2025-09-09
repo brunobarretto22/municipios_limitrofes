@@ -31,6 +31,8 @@ if not municipio_geom.empty:
     # Criar mapa Folium com tile Esri World Imagery
     # m = folium.Map(location=[centroid_y, centroid_x], zoom_start=8, tiles='Esri.WorldImagery')
     m = folium.Map(location=[centroid_y, centroid_x], zoom_start=8, tiles='Esri.WorldImagery')
+    folium.TileLayer('Esri.WorldBoundariesAndPlaces').add_to(m)
+    folium.LayerControl().add_to(m)
 
     # Adiciona polígono do município selecionado em destaque (ex: borda vermelha)
     folium.GeoJson(
@@ -53,4 +55,5 @@ if not municipio_geom.empty:
     lista_limitrofes = limitrofes.apply(lambda row: f"{row['NM_MUN']} - {row['SIGLA_UF']}", axis=1).tolist()
     st.write("Municípios Limítrofes (Município - UF):", lista_limitrofes)
 else:
+
     st.write("Município selecionado não encontrado na base")
