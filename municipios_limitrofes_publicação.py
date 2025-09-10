@@ -12,9 +12,13 @@ import streamlit as st
 import folium
 from streamlit_folium import st_folium
 
+# Seta a página como sendo no formato 'wide'
 st.set_page_config(layout="wide")
 
-st.header('Consulta de municípios limítrofes com mapa interativo')
+# Adiciona título e descrição ao app
+st.markdown(
+    "<h1 style='text-align: center;'>Consulta de municípios limítrofes, por unidade federativa com mapa interativo</h1>",
+    unsafe_allow_html=True)
 
 # Carregar o shapefile dos municípios do Mato Grosso (MT)
 gdf_municipios = gpd.read_file('BR_Municipios_2024_MT.shp')
@@ -22,7 +26,19 @@ gdf_estado = gpd.read_file('MT_UF_2024.shp')
 
 # Seleção da UF
 siglas_uf = gdf_municipios['SIGLA_UF'].drop_duplicates().sort_values()
-uf_selecionada = st.selectbox("Selecione o Estado (UF):", siglas_uf)
+col1, col2 = st.columns([1, 9])
+
+with col1:
+    st.markdown(
+        """
+        <div style="height: 38px; display: flex; align-items: center;">
+            Selecione o Estado (UF):
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with col2:
+    uf_selecionada = st.selectbox("", siglas_uf)
 
 # Filtra municípios pela UF selecionada
 municipios_da_uf = gdf_municipios[gdf_municipios['SIGLA_UF'] == uf_selecionada]
@@ -30,11 +46,21 @@ nomes_municipios_da_uf = municipios_da_uf['NM_MUN'].sort_values()
 
 # Seleção do Estado
 estado_geom = gdf_estado[gdf_estado['SIGLA_UF'] == uf_selecionada]
-
-# Seleção do município
-municipio_selecionado = st.selectbox("Selecione o município:", nomes_municipios_da_uf)
+col1, col2 = st.columns([1, 9])
+with col1:
+    st.markdown(
+        """
+        <div style="height: 38px; display: flex; align-items: center;">
+            Selecione o município:
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with col2:
+    municipio_selecionado = st.selectbox("", nomes_municipios_da_uf)
 municipio_geom = municipios_da_uf[municipios_da_uf['NM_MUN'] == municipio_selecionado]
 
+# Verifica se o município foi encontrado
 if not municipio_geom.empty:
     # Identifica municípios limítrofes
     limitrofes = municipios_da_uf[municipios_da_uf.touches(municipio_geom.geometry.squeeze())]
@@ -92,13 +118,12 @@ if not municipio_geom.empty:
     folium.LayerControl().add_to(m)
     
     # Mostrar mapa interativo no Streamlit
-    # st_folium(m, width=700, height=500)
     col1, col2 = st.columns(2)
     with col1:
-        st_folium(m, width=None, height=400)
+        st_folium(m, width=None, height=300)
     # m
 
-#     # Exibe a lista dos municípios limítrofes com UF
+# # Exibe a lista dos municípios limítrofes com UF
 else:
     st.write("Município selecionado não encontrado na base")
 
@@ -121,3 +146,6 @@ df_limitrofes.index = df_limitrofes.index + 1
 with col2:
     st.write(f"O município de **{municipio_selecionado} - {uf_selecionada}** tem **{qtd_limitrofes}** municípios limítrofes, a saber:")
     st.dataframe(df_limitrofes)
+
+st.markdown("<small>Fonte dos dados: Malha Municipal Digital e Áreas Territoriais - IBGE, 2024.</small>", unsafe_allow_html=True)
+st.markdown("<small>Elaboração: Bruno Barretto Araujo, 2025.</small>", unsafe_allow_html=True)
