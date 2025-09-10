@@ -26,39 +26,21 @@ gdf_estado = gpd.read_file('MT_UF_2024.shp')
 
 # Seleção da UF
 siglas_uf = gdf_municipios['SIGLA_UF'].drop_duplicates().sort_values()
-col1, col2 = st.columns([1, 9])
+uf_selecionada = st.selectbox("Selecione o Estado (UF):", siglas_uf)
+estado_geom = gdf_estado[gdf_estado['SIGLA_UF'] == uf_selecionada]
 
-with col1:
-    st.markdown(
-        """
-        <div style="height: 38px; display: flex; align-items: center;">
-            Selecione o Estado (UF):
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-with col2:
-    uf_selecionada = st.selectbox("", siglas_uf)
+
+# Filtra municípios da UF escolhida
+municipios_da_uf = gdf_municipios[gdf_municipios['SIGLA_UF'] == uf_selecionada]
+nomes_municipios_da_uf = municipios_da_uf['NM_MUN'].sort_values()
+
+# Seleção do município
+municipio_selecionado = st.selectbox("Selecione o município:", nomes_municipios_da_uf)
+municipio_geom = municipios_da_uf[municipios_da_uf['NM_MUN'] == municipio_selecionado]
 
 # Filtra municípios pela UF selecionada
 municipios_da_uf = gdf_municipios[gdf_municipios['SIGLA_UF'] == uf_selecionada]
 nomes_municipios_da_uf = municipios_da_uf['NM_MUN'].sort_values()
-
-# Seleção do Estado
-estado_geom = gdf_estado[gdf_estado['SIGLA_UF'] == uf_selecionada]
-col1, col2 = st.columns([1, 9])
-with col1:
-    st.markdown(
-        """
-        <div style="height: 38px; display: flex; align-items: center;">
-            Selecione o município:
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-with col2:
-    municipio_selecionado = st.selectbox("", nomes_municipios_da_uf)
-municipio_geom = municipios_da_uf[municipios_da_uf['NM_MUN'] == municipio_selecionado]
 
 # Verifica se o município foi encontrado
 if not municipio_geom.empty:
